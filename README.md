@@ -5,7 +5,6 @@ DataEyes 的 OpenClaw 一键安装仓库。
 适合场景：
 - 从 GitHub 分发给测试用户
 - 让用户通过终端一条命令完成安装
-- 在未做 Apple 签名、公证前，尽量降低 macOS 双击脚本带来的阻力
 
 ## 安装特点
 
@@ -85,40 +84,6 @@ curl -fsSL https://raw.githubusercontent.com/dataeyesai/dataeyes-mac-deploy/main
 4. 等待安装器自动完成 OpenClaw 安装、配置写入和 Gateway 启动。
 5. 安装完成后，浏览器会自动打开本地控制台。
 
-### 方式二：双击安装包
-
-#### 第 1 步：确认安装包内容
-
-![步骤 1](图片教程/01.png)
-
-#### 第 2 步：双击 `双击开始安装.command`
-
-![步骤 2](图片教程/02.png)
-
-#### 第 3 步：如果 macOS 提示安全限制，到“系统设置 > 隐私与安全性”中放行
-
-![步骤 3](图片教程/03.png)
-
-#### 第 4 步：重新打开安装程序
-
-![步骤 4](图片教程/04.png)
-
-#### 第 5 步：等待 OpenClaw 安装完成
-
-![步骤 5](图片教程/05.png)
-
-#### 第 6 步：输入 DataEyes API Key
-
-![步骤 6](图片教程/06.png)
-
-#### 第 7 步：等待自动写入 DataEyes 配置并启动 Gateway
-
-![步骤 7](图片教程/07.png)
-
-#### 第 8 步：安装完成后自动打开本机控制台
-
-![步骤 8](图片教程/08.png)
-
 ## 常见问题
 
 ### 1. 为什么没有安装到 `~/.dataeyes-openclaw`
@@ -129,13 +94,7 @@ curl -fsSL https://raw.githubusercontent.com/dataeyesai/dataeyes-mac-deploy/main
 
 这样更符合大家对 Node CLI 的常见使用习惯。
 
-### 2. 为什么还会提示 macOS 安全限制
-
-如果你是双击本地脚本包，而不是通过终端执行 GitHub 安装命令，macOS 仍可能因为 Gatekeeper 拦截未签名脚本。
-
-这不是安装逻辑问题，而是苹果平台对未签名脚本的默认限制。
-
-### 3. 网络慢的时候会卡多久
+### 2. 网络慢的时候会卡多久
 
 如果当前机器没有可用的 Node.js 22，安装器会先下载 Node.js，再安装 OpenClaw。网络较慢时持续几分钟属于正常现象。
 
@@ -147,5 +106,3 @@ curl -fsSL https://raw.githubusercontent.com/dataeyesai/dataeyes-mac-deploy/main
   真实安装逻辑
 - `图片教程/`
   安装引导图片
-- `DELIVERY.md`
-  后续做签名、公证时的交付建议
