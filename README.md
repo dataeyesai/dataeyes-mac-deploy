@@ -84,6 +84,44 @@ curl -fsSL https://raw.githubusercontent.com/cyf1124906008-ai/dataeyes-openclaw-
 4. 等待安装器自动完成 OpenClaw 安装、配置写入和 Gateway 启动。
 5. 安装完成后，浏览器会自动打开本地控制台。
 
+### 方式二：图片教程
+
+#### 第 1 步：确认安装包内容
+
+![步骤 1](图片教程/01.png)
+
+#### 第 2 步：等待 OpenClaw 安装完成
+
+![步骤 5](图片教程/05.png)
+
+安装器会自动检查 Node.js，并安装 OpenClaw。
+
+当前版本的安装策略是：
+- 优先直接执行 `npm install -g openclaw@latest`
+- 如果当前环境没有全局安装权限，会自动回退到 `~/.npm-global`
+
+#### 第 3 步：输入 DataEyes API Key
+
+![步骤 6](图片教程/06.png)
+
+按照提示输入你自己的 DataEyes API Key。
+
+#### 第 4 步：等待自动写入配置并启动 Gateway
+
+![步骤 7](图片教程/07.png)
+
+安装器会自动：
+- 写入 `~/.openclaw/openclaw.json`
+- 安装或启动 Gateway
+- 做一次验证
+
+#### 第 5 步：安装完成后自动打开本机控制台
+
+![步骤 8](图片教程/08.png)
+
+默认控制台地址：
+- `http://127.0.0.1:18789`
+
 ## 常见问题
 
 ### 1. 为什么没有安装到 `~/.dataeyes-openclaw`
