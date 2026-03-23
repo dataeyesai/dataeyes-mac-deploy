@@ -15,8 +15,13 @@ success() { echo -e "${GREEN}OK ${NC}$*"; }
 warn()    { echo -e "${YELLOW}! ${NC}$*"; }
 error()   { echo -e "${RED}X ${NC}$*"; }
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-INSTALLER_PATH="$SCRIPT_DIR/内部文件/安装主程序.sh"
+SCRIPT_PATH="${BASH_SOURCE[0]:-}"
+SCRIPT_DIR=""
+INSTALLER_PATH=""
+if [[ -n "$SCRIPT_PATH" && "$SCRIPT_PATH" != "bash" && "$SCRIPT_PATH" != "-bash" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+  INSTALLER_PATH="$SCRIPT_DIR/内部文件/安装主程序.sh"
+fi
 
 ensure_git() {
   if command -v git >/dev/null 2>&1; then
@@ -29,7 +34,7 @@ ensure_git() {
 
 clone_repo_if_needed() {
   local tmp_dir="$1"
-  info "正在下载安装资源..."
+  info "正在下载安装资源..." >&2
   git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$tmp_dir/repo" >/dev/null 2>&1 || {
     error "无法从 GitHub 下载仓库: $REPO_URL"
     exit 1
@@ -68,7 +73,7 @@ main() {
   echo "Repo: $REPO_URL"
   echo ""
 
-  if [[ -f "$INSTALLER_PATH" ]]; then
+  if [[ -n "$INSTALLER_PATH" && -f "$INSTALLER_PATH" ]]; then
     run_local_installer
   else
     run_remote_installer
