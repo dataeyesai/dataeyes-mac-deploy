@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# OpenClaw 安装脚本（无管理员权限版）
+# OpenClaw 安装脚本
 # 特点：
-# - 仅写入用户目录，不触碰 /usr/local
-# - 不修改 shell 配置文件
+# - 优先直接使用 npm -g 安装 OpenClaw
+# - 如无权限则回退到 ~/.npm-global
 # - 不修改全局 npm registry
 # - 不依赖 Homebrew / Git
 #
@@ -25,10 +25,9 @@ step()    { echo -e "\n${CYAN}=== $* ===${NC}\n"; }
 
 REQUIRED_NODE_MAJOR=22
 OPENCLAW_PKG="${OPENCLAW_PKG:-openclaw@latest}"
-APP_HOME="${OPENCLAW_HOME:-$HOME/.dataeyes-openclaw}"
-NODE_HOME="$APP_HOME/node"
-NPM_HOME="$APP_HOME/npm"
-BIN_HOME="$NPM_HOME/bin"
+NODE_HOME="${OPENCLAW_NODE_HOME:-$HOME/.local/node}"
+FALLBACK_NPM_HOME="${OPENCLAW_NPM_HOME:-$HOME/.npm-global}"
+BIN_HOME="$FALLBACK_NPM_HOME/bin"
 NODE_BIN_DIR=""
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -m)
@@ -40,7 +39,7 @@ case "$ARCH" in
 esac
 
 ensure_dirs() {
-  mkdir -p "$APP_HOME" "$NODE_HOME" "$NPM_HOME" "$BIN_HOME"
+  mkdir -p "$NODE_HOME" "$FALLBACK_NPM_HOME" "$BIN_HOME"
 }
 
 ensure_path() {
@@ -192,10 +191,20 @@ npm_install_openclaw() {
   local tmp_cache
   tmp_cache=$(mktemp -d)
 
-  info "安装位置: $NPM_HOME"
   info "软件包: $OPENCLAW_PKG"
 
-  if NPM_CONFIG_PREFIX="$NPM_HOME" \
+  if NPM_CONFIG_CACHE="$tmp_cache" \
+     NPM_CONFIG_FUND=false \
+     NPM_CONFIG_AUDIT=false \
+     NPM_CONFIG_UPDATE_NOTIFIER=false \
+     "$npm_cmd" install -g "$OPENCLAW_PKG" --loglevel=notice; then
+    rm -rf "$tmp_cache"
+    success "OpenClaw 已通过 npm -g 安装完成"
+    return 0
+  fi
+
+  warn "直接执行 npm -g 安装失败，正在回退到用户目录: $FALLBACK_NPM_HOME"
+  if NPM_CONFIG_PREFIX="$FALLBACK_NPM_HOME" \
      NPM_CONFIG_CACHE="$tmp_cache" \
      NPM_CONFIG_FUND=false \
      NPM_CONFIG_AUDIT=false \
@@ -203,7 +212,8 @@ npm_install_openclaw() {
      "$npm_cmd" install -g "$OPENCLAW_PKG" --loglevel=notice; then
     rm -rf "$tmp_cache"
     export PATH="$BIN_HOME:$PATH"
-    success "OpenClaw 安装完成"
+    success "OpenClaw 已安装到用户目录: $FALLBACK_NPM_HOME"
+    warn "如果当前终端找不到 openclaw，请执行: export PATH=\"$BIN_HOME:\$PATH\""
     return 0
   fi
 
@@ -216,9 +226,10 @@ verify_openclaw() {
   step "步骤 3/4: 验证安装"
 
   ensure_path
-  local openclaw_cmd="$BIN_HOME/openclaw"
-  if [[ ! -x "$openclaw_cmd" ]]; then
-    openclaw_cmd="$(command -v openclaw || true)"
+  local openclaw_cmd
+  openclaw_cmd="$(command -v openclaw || true)"
+  if [[ -z "$openclaw_cmd" || ! -x "$openclaw_cmd" ]]; then
+    openclaw_cmd="$BIN_HOME/openclaw"
   fi
 
   if [[ -z "$openclaw_cmd" || ! -x "$openclaw_cmd" ]]; then
@@ -230,12 +241,10 @@ verify_openclaw() {
   ver=$("$openclaw_cmd" -v 2>/dev/null || "$openclaw_cmd" --version 2>/dev/null || true)
   if [[ -n "$ver" ]]; then
     success "OpenClaw 已就绪: $ver"
-    echo "$openclaw_cmd" > "$APP_HOME/openclaw-bin-path"
     return 0
   fi
 
   warn "openclaw 已安装，但未能读取版本号"
-  echo "$openclaw_cmd" > "$APP_HOME/openclaw-bin-path"
   return 0
 }
 
@@ -247,8 +256,9 @@ step_onboard() {
   fi
 
   step "步骤 4/4: 打开 OpenClaw 官方向导"
-  local openclaw_cmd="$BIN_HOME/openclaw"
-  [[ -x "$openclaw_cmd" ]] || openclaw_cmd="$(command -v openclaw || true)"
+  local openclaw_cmd
+  openclaw_cmd="$(command -v openclaw || true)"
+  [[ -x "${openclaw_cmd:-}" ]] || openclaw_cmd="$BIN_HOME/openclaw"
   if [[ -z "$openclaw_cmd" ]]; then
     error "未找到 openclaw 命令"
     return 1
@@ -269,8 +279,7 @@ main() {
 
   echo ""
   success "基础环境准备完成"
-  echo "用户目录: $APP_HOME"
-  echo "CLI 路径: $BIN_HOME/openclaw"
+  echo "OpenClaw 命令: $(command -v openclaw || echo "$BIN_HOME/openclaw")"
 }
 
 main "$@"

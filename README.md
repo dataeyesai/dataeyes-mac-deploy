@@ -7,47 +7,31 @@ DataEyes 的 OpenClaw 一键安装仓库。
 - 让用户通过终端一条命令完成安装
 - 在未做 Apple 签名、公证前，尽量降低 macOS 双击脚本带来的阻力
 
-## 特点
+## 安装特点
 
-- 双击 `双击开始安装.command`
-- 输入 DataEyes API Key
-- 全程只写入当前用户目录
-- 不申请管理员权限
-- 不修改 shell 配置
-- 不修改全局 npm 配置
+- 优先直接执行 `npm install -g openclaw@latest`
+- 如果当前环境没有全局安装权限，会自动回退到 `~/.npm-global`
+- 自动检测或安装 Node.js 22
+- 自动写入 DataEyes 配置
+- 自动启动 OpenClaw Gateway
+- 安装完成后自动打开本机控制台
+- 不修改全局 npm registry
+- 不修改 shell 配置文件
 
-安装器会自动完成：
-- 安装或复用 Node.js 22
-- 安装 OpenClaw 到 `~/.dataeyes-openclaw`
-- 写入 DataEyes 配置
-- 启动 Gateway
-- 打开本机控制台
+## 一键安装
 
-## 安装方式
-
-推荐方式是让用户在终端执行：
+推荐直接在终端执行：
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cyf1124906008-ai/dataeyes-openclaw-installer/main/install.sh | bash
 ```
 
-或者：
+或者先克隆仓库再执行：
 
 ```bash
 git clone https://github.com/cyf1124906008-ai/dataeyes-openclaw-installer.git
 cd dataeyes-openclaw-installer
 bash install.sh
-```
-
-说明：
-- `install.sh` 会自动拉取仓库并执行 `内部文件/安装主程序.sh`
-- 这种方式比双击脚本更适合未签名阶段的分发
-- 终端执行仍然属于“用户主动运行脚本”，所以要在 README 里把来源和用途写清楚
-
-如果你想在本地调试远程拉取逻辑，也可以这样执行：
-
-```bash
-DATAEYES_REPO_URL="https://github.com/cyf1124906008-ai/dataeyes-openclaw-installer.git" bash install.sh
 ```
 
 仓库地址：
@@ -58,24 +42,92 @@ DATAEYES_REPO_URL="https://github.com/cyf1124906008-ai/dataeyes-openclaw-install
 默认控制台地址：
 - `http://127.0.0.1:18789`
 
-运行目录：
-- `~/.dataeyes-openclaw`
+默认配置文件：
+- `~/.openclaw/openclaw.json`
 
 默认模型：
 - 主模型：`dataeyes/gpt-5.4`
 - 自动回退：`dataeyes/gemini-3.1-pro-preview-customtools`
 - 自动回退：`dataeyes/claude-opus-4-6`
 
-## 交付说明
+OpenClaw 命令位置说明：
+- 如果当前机器允许直接全局安装，`openclaw` 会进入 npm 全局路径
+- 如果当前机器没有全局安装权限，会自动回退到 `~/.npm-global/bin/openclaw`
 
-这个安装包已经去掉了管理员密码和系统级写入。
+如果安装后当前终端找不到 `openclaw`，先执行：
 
-如果用户是从微信、浏览器或网盘下载后直接打开，macOS 仍然可能提示“无法验证”或“已阻止打开”。这个不是脚本逻辑导致的，而是 Gatekeeper 对未签名脚本的拦截。
+```bash
+export PATH="$HOME/.npm-global/bin:$PATH"
+```
 
-要做到真正可交付、用户不需要去“系统设置 > 隐私与安全性 > 仍要打开”，需要把最终交付物做成已签名并已公证的 `.app` 或 `.pkg`。
+## 图文教程
 
-详细交付建议见：
-- `DELIVERY.md`
+### 方式一：终端一键安装
+
+1. 打开终端。
+2. 执行下面这条命令：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cyf1124906008-ai/dataeyes-openclaw-installer/main/install.sh | bash
+```
+
+3. 按提示输入 DataEyes API Key。
+4. 等待安装器自动完成 OpenClaw 安装、配置写入和 Gateway 启动。
+5. 安装完成后，浏览器会自动打开本地控制台。
+
+### 方式二：双击安装包
+
+#### 第 1 步：确认安装包内容
+
+![步骤 1](图片教程/01.png)
+
+#### 第 2 步：双击 `双击开始安装.command`
+
+![步骤 2](图片教程/02.png)
+
+#### 第 3 步：如果 macOS 提示安全限制，到“系统设置 > 隐私与安全性”中放行
+
+![步骤 3](图片教程/03.png)
+
+#### 第 4 步：重新打开安装程序
+
+![步骤 4](图片教程/04.png)
+
+#### 第 5 步：等待 OpenClaw 安装完成
+
+![步骤 5](图片教程/05.png)
+
+#### 第 6 步：输入 DataEyes API Key
+
+![步骤 6](图片教程/06.png)
+
+#### 第 7 步：等待自动写入 DataEyes 配置并启动 Gateway
+
+![步骤 7](图片教程/07.png)
+
+#### 第 8 步：安装完成后自动打开本机控制台
+
+![步骤 8](图片教程/08.png)
+
+## 常见问题
+
+### 1. 为什么没有安装到 `~/.dataeyes-openclaw`
+
+因为现在的安装策略已经改成：
+- 优先直接使用 `npm install -g openclaw@latest`
+- 没有权限时再回退到 `~/.npm-global`
+
+这样更符合大家对 Node CLI 的常见使用习惯。
+
+### 2. 为什么还会提示 macOS 安全限制
+
+如果你是双击本地脚本包，而不是通过终端执行 GitHub 安装命令，macOS 仍可能因为 Gatekeeper 拦截未签名脚本。
+
+这不是安装逻辑问题，而是苹果平台对未签名脚本的默认限制。
+
+### 3. 网络慢的时候会卡多久
+
+如果当前机器没有可用的 Node.js 22，安装器会先下载 Node.js，再安装 OpenClaw。网络较慢时持续几分钟属于正常现象。
 
 ## 仓库结构
 

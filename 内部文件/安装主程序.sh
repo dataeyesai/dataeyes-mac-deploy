@@ -2,15 +2,17 @@
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 INNER_DIR="$DIR/内部文件"
-APP_HOME="${OPENCLAW_HOME:-$HOME/.dataeyes-openclaw}"
-export PATH="$APP_HOME/npm/bin:$APP_HOME/node/bin:$HOME/.npm-global/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
+NODE_HOME="${OPENCLAW_NODE_HOME:-$HOME/.local/node}"
+export PATH="$HOME/.npm-global/bin:$NODE_HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
 
 OPENCLAW_SKIP_ONBOARD=1 bash "$INNER_DIR/安装OpenClaw基础环境.sh"
-export PATH="$APP_HOME/npm/bin:$APP_HOME/node/bin:$HOME/.npm-global/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$NODE_HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
 hash -r || true
 
-OPENCLAW_BIN="$APP_HOME/npm/bin/openclaw"
-[[ -x "$OPENCLAW_BIN" ]] || OPENCLAW_BIN="$(command -v openclaw || true)"
+OPENCLAW_BIN="$(command -v openclaw || true)"
+if [[ -z "$OPENCLAW_BIN" && -x "$HOME/.npm-global/bin/openclaw" ]]; then
+  OPENCLAW_BIN="$HOME/.npm-global/bin/openclaw"
+fi
 if [[ -z "$OPENCLAW_BIN" ]]; then
   echo "OpenClaw 安装后未找到 openclaw 命令"
   exit 1
