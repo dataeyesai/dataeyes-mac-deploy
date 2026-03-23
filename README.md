@@ -11,6 +11,7 @@ DataEyes 的 OpenClaw 一键安装仓库。
 
 - 优先直接执行 `npm install -g openclaw@latest`
 - 如果当前环境没有全局安装权限，会自动回退到 `~/.npm-global`
+- `curl | bash` 安装优先直接下载 GitHub 压缩包，不强依赖本机预装 `git`
 - OpenClaw 模型列表默认只显示 DataEyes 模型，不再混入其他 provider
 - 自动检测或安装 Node.js 22
 - 自动写入 DataEyes 配置
@@ -26,6 +27,8 @@ DataEyes 的 OpenClaw 一键安装仓库。
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cyf1124906008-ai/dataeyes-openclaw-installer/main/install.sh | bash
 ```
+
+这条命令会优先直接下载 GitHub 仓库压缩包；如果压缩包下载失败，才会回退到 `git clone`。
 
 或者先克隆仓库再执行：
 

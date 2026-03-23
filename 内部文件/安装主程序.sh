@@ -9,6 +9,17 @@ OPENCLAW_SKIP_ONBOARD=1 bash "$INNER_DIR/安装OpenClaw基础环境.sh"
 export PATH="$HOME/.npm-global/bin:$NODE_HOME/bin:/usr/local/bin:/opt/homebrew/bin:$PATH"
 hash -r || true
 
+open_url() {
+  local url="$1"
+  if command -v open >/dev/null 2>&1; then
+    open "$url" >/dev/null 2>&1 && return 0
+  fi
+  if command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$url" >/dev/null 2>&1 && return 0
+  fi
+  return 1
+}
+
 OPENCLAW_BIN="$(command -v openclaw || true)"
 if [[ -z "$OPENCLAW_BIN" && -x "$HOME/.npm-global/bin/openclaw" ]]; then
   OPENCLAW_BIN="$HOME/.npm-global/bin/openclaw"
@@ -42,8 +53,11 @@ bash "$INNER_DIR/scripts/dataeyes-verify.sh"
 sleep 3
 URL=$("$OPENCLAW_BIN" dashboard --no-open 2>/dev/null | sed -n 's/^Dashboard URL: //p')
 if [[ -n "$URL" ]]; then
-  open "$URL" 2>/dev/null || true
-  echo "已打开控制台: $URL"
+  if open_url "$URL"; then
+    echo "已打开控制台: $URL"
+  else
+    echo "控制台地址: $URL"
+  fi
 else
   echo "控制台地址: http://127.0.0.1:18789"
 fi
